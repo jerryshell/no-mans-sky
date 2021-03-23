@@ -9,18 +9,19 @@ const USER_COUNT_THRESHOLD: usize = 0;
 
 fn main() {
     let mut pid: u32 = 0;
+    let task = ETHTask;
     loop {
         let user_count = get_user_count();
         println!("{} user_count: {}", Utc::now(), user_count);
         if user_count > USER_COUNT_THRESHOLD && pid != 0 {
-            clean_env();
-            kill_target_process(&mut pid);
+            task.clean_env();
+            task.kill_target_process(&mut pid);
         }
         if user_count <= USER_COUNT_THRESHOLD && pid == 0 {
-            init_env();
-            pid = start_target_process();
+            task.init_env();
+            pid = task.start_target_process();
             thread::sleep(Duration::from_secs(10));
-            clean_env();
+            task.clean_env();
         }
         thread::sleep(Duration::from_secs(1));
     }

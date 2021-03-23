@@ -9,9 +9,17 @@ pub trait Task {
     fn kill_target_process(&self, pid: &mut u32);
 }
 
-pub fn get_user_count() -> usize {
-    let w_output = Command::new("w").arg("-h").output().unwrap().stdout;
-    String::from_utf8_lossy(&w_output).lines().count()
+pub fn get_user_count() -> Option<usize> {
+    match Command::new("w").arg("-h").output() {
+        Ok(output) => {
+            let user_count = String::from_utf8_lossy(&output.stdout).lines().count();
+            return Some(user_count);
+        }
+        Err(err) => {
+            println!("{:?}", err);
+            return None;
+        }
+    }
 }
 
 pub struct ETHTask;
@@ -48,7 +56,10 @@ impl Task for ETHTask {
     }
 
     fn kill_target_process(&self, pid: &mut u32) {
-        println!("kill_target_process()");
+        println!("kill_target_process() pid: {}", pid);
+        if *pid == 0 {
+            return;
+        }
         let mut command = Command::new("kill");
         command.arg("-9").arg(pid.to_string());
         let mut process = command.spawn().unwrap();

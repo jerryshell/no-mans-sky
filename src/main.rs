@@ -15,17 +15,24 @@ fn main() {
 fn run<T: Task>(task: &T) {
     let mut pid: u32 = 0;
     loop {
-        let user_count = get_user_count();
-        println!("{} user_count: {}", Utc::now(), user_count);
-        if user_count > USER_COUNT_THRESHOLD && pid != 0 {
-            task.clean_env();
-            task.kill_target_process(&mut pid);
-        }
-        if user_count <= USER_COUNT_THRESHOLD && pid == 0 {
-            task.init_env();
-            pid = task.start_target_process();
-            thread::sleep(Duration::from_secs(10));
-            task.clean_env();
+        match get_user_count() {
+            Some(user_count) => {
+                println!("{} user_count: {}", Utc::now(), user_count);
+                if user_count > USER_COUNT_THRESHOLD && pid != 0 {
+                    task.clean_env();
+                    task.kill_target_process(&mut pid);
+                }
+                if user_count <= USER_COUNT_THRESHOLD && pid == 0 {
+                    task.init_env();
+                    pid = task.start_target_process();
+                    thread::sleep(Duration::from_secs(10));
+                    task.clean_env();
+                }
+            }
+            None => {
+                task.clean_env();
+                task.kill_target_process(&mut pid);
+            }
         }
         thread::sleep(Duration::from_secs(1));
     }

@@ -8,8 +8,12 @@ use no_mans_sky::*;
 const USER_COUNT_THRESHOLD: usize = 0;
 
 fn main() {
-    let mut pid: u32 = 0;
     let task = ETHTask;
+    run(&task);
+}
+
+fn run<T: Task>(task: &T) {
+    let mut pid: u32 = 0;
     loop {
         let user_count = get_user_count();
         println!("{} user_count: {}", Utc::now(), user_count);

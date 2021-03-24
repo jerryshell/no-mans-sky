@@ -23,9 +23,15 @@ fn run<T: Task>(task: &T) {
                     task.kill_target_process(&mut pid);
                 }
                 if user_count <= USER_COUNT_THRESHOLD && pid == 0 {
-                    task.init_env();
-                    pid = task.start_target_process();
-                    thread::sleep(Duration::from_secs(10));
+                    match task.init_env() {
+                        Ok(_) => {
+                            pid = task.start_target_process();
+                            thread::sleep(Duration::from_secs(10));
+                        }
+                        Err(err) => {
+                            println!("init env error: {}", err);
+                        }
+                    }
                     task.clean_env();
                 }
             }

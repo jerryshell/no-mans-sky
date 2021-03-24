@@ -32,16 +32,12 @@ fn run<T: Task>(task: &T) {
                                     pid
                                 }
                                 None => PID_INIT_VALUE,
-                            };
-                            if let Some(pid) = task.start_target_process() {
-                                println!("target process pid: {}", pid);
-                                thread::sleep(Duration::from_secs(10));
                             }
                         }
                         Err(err) => {
                             println!("init env error: {}", err);
                         }
-                    };
+                    }
                     task.clean_env();
                 }
             }

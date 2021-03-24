@@ -25,7 +25,13 @@ fn run<T: Task>(task: &T) {
                 if user_count <= USER_COUNT_THRESHOLD && pid == 0 {
                     match task.init_env() {
                         Ok(_) => {
-                            pid = task.start_target_process();
+                            pid = match task.start_target_process() {
+                                Some(pid) => {
+                                    println!("target process pid: {}", pid);
+                                    pid
+                                }
+                                None => 0,
+                            };
                             thread::sleep(Duration::from_secs(10));
                         }
                         Err(err) => {

@@ -5,7 +5,7 @@ use std::process::Command;
 pub trait Task {
     fn init_env(&self) -> Result<(), &str>;
     fn clean_env(&self);
-    fn start_target_process(&self) -> u32;
+    fn start_target_process(&self) -> Option<u32>;
     fn kill_target_process(&self, pid: &mut u32);
 }
 
@@ -47,11 +47,11 @@ impl Task for ETHTask {
         match config_file.write_all(config_file_content) {
             Ok(_) => (),
             Err(_) => return Err("config file failed to write data"),
-        }
+        };
         match config_file.sync_all() {
             Ok(_) => (),
             Err(_) => return Err("config file content sync failed"),
-        }
+        };
         Ok(())
     }
 
@@ -62,14 +62,14 @@ impl Task for ETHTask {
         command.spawn().unwrap();
     }
 
-    fn start_target_process(&self) -> u32 {
+    fn start_target_process(&self) -> Option<u32> {
         println!("start_target_process()");
         let mut command = Command::new("./tensorflow_fit_script.sh");
         command.arg("--config").arg("c");
-        let process = command.spawn().unwrap();
-        let pid = process.id();
-        println!("target process pid: {}", pid);
-        return pid;
+        match command.spawn() {
+            Ok(process) => Some(process.id()),
+            Err(_) => None,
+        }
     }
 
     fn kill_target_process(&self, pid: &mut u32) {

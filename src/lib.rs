@@ -48,7 +48,7 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
     }
 }
 
-fn get_user_count() -> Option<usize> {
+pub fn get_user_count() -> Option<usize> {
     match Command::new("w").arg("-h").output() {
         Ok(output) => Some(String::from_utf8_lossy(&output.stdout).lines().count()),
         Err(_) => None,

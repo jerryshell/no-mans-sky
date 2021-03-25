@@ -1,6 +1,6 @@
 use no_mans_sky::*;
 
 fn main() {
-    let task = eth_task::ETHTask;
-    run(&task);
+    static TASK: eth_task::ETHTask = eth_task::ETHTask;
+    run(&TASK);
 }

@@ -9,7 +9,7 @@ pub mod task;
 const PID_INIT_VALUE: u32 = 0;
 const USER_COUNT_THRESHOLD: usize = 0;
 
-pub fn run<T: task::Task>(task: &T) {
+pub fn run<T: task::Task + Sync>(task: &'static T) {
     let mut pid: u32 = PID_INIT_VALUE;
     loop {
         match get_user_count() {
@@ -22,19 +22,24 @@ pub fn run<T: task::Task>(task: &T) {
                     match task.init_env() {
                         Ok(_) => {
                             pid = match task.start_target_process() {
-                                Some(pid) => {
-                                    println!("target process pid: {}", pid);
-                                    thread::sleep(Duration::from_secs(10));
-                                    pid
-                                }
+                                Some(pid) => pid,
                                 None => PID_INIT_VALUE,
-                            }
+                            };
                         }
                         Err(err) => {
                             println!("init env error: {}", err);
                         }
                     }
-                    task.clean_env();
+                    println!("target process pid: {}", pid);
+                    // spawn clean_env thread
+                    let pid_clone = pid.clone();
+                    let task_clone = task.clone();
+                    thread::spawn(move || {
+                        if pid_clone != PID_INIT_VALUE {
+                            thread::sleep(Duration::from_secs(10));
+                        }
+                        task_clone.clean_env();
+                    });
                 }
             }
             None => clean(task, &mut pid),

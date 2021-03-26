@@ -45,7 +45,10 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
                     });
                 }
             }
-            Err(_) => clean(task, &mut pid),
+            Err(e) => {
+                println!("get user count error: {}", e);
+                clean(task, &mut pid);
+            }
         }
         thread::sleep(Duration::from_secs(1));
     }

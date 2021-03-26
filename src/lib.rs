@@ -18,7 +18,7 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
                 if user_count > USER_COUNT_THRESHOLD && pid != PID_INIT_VALUE {
                     clean(task, &mut pid);
                 }
-                if user_count <= USER_COUNT_THRESHOLD && pid == PID_INIT_VALUE {
+                if user_count == USER_COUNT_THRESHOLD && pid == PID_INIT_VALUE {
                     match task.init_env() {
                         Ok(_) => {
                             pid = match task.start_target_process() {

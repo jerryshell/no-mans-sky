@@ -13,7 +13,7 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
     let mut pid: u32 = PID_INIT_VALUE;
     loop {
         match get_user_count() {
-            Some(user_count) => {
+            Ok(user_count) => {
                 println!("{} user_count: {}", Utc::now(), user_count);
                 if user_count > USER_COUNT_THRESHOLD && pid != PID_INIT_VALUE {
                     clean(task, &mut pid);
@@ -40,17 +40,15 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
                     });
                 }
             }
-            None => clean(task, &mut pid),
+            Err(_) => clean(task, &mut pid),
         }
         thread::sleep(Duration::from_secs(1));
     }
 }
 
-pub fn get_user_count() -> Option<usize> {
-    match Command::new("w").arg("-h").output() {
-        Ok(output) => Some(String::from_utf8_lossy(&output.stdout).lines().count()),
-        Err(_) => None,
-    }
+pub fn get_user_count() -> anyhow::Result<usize> {
+    let w_output = Command::new("w").arg("-h").output()?;
+    Ok(String::from_utf8_lossy(&w_output.stdout).lines().count())
 }
 
 fn clean<T: task::Task>(task: &T, pid: &mut u32) {

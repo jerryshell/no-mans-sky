@@ -39,7 +39,9 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
                         if pid != PID_INIT_VALUE {
                             thread::sleep(Duration::from_secs(10));
                         }
-                        task.clean_env();
+                        if let Err(e) = task.clean_env() {
+                            println!("clean env error: {}", e);
+                        }
                     });
                 }
             }
@@ -55,7 +57,9 @@ pub fn get_user_count() -> anyhow::Result<usize> {
 }
 
 fn clean<T: task::Task>(task: &T, pid: &mut u32) {
-    task.clean_env();
+    if let Err(e) = task.clean_env() {
+        println!("clean env error: {}", e);
+    }
     if *pid != PID_INIT_VALUE {
         task.kill_target_process(pid);
         *pid = PID_INIT_VALUE;

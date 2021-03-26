@@ -61,7 +61,9 @@ fn clean<T: task::Task>(task: &T, pid: &mut u32) {
         println!("clean env error: {}", e);
     }
     if *pid != PID_INIT_VALUE {
-        task.kill_target_process(pid);
+        if let Err(e) = task.kill_target_process(pid) {
+            println!("kill target process error: {}", e);
+        };
         *pid = PID_INIT_VALUE;
     }
 }

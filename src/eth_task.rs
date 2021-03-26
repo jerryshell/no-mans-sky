@@ -37,11 +37,13 @@ impl task::Task for ETHTask {
         Ok(process.id())
     }
 
-    fn kill_target_process(&self, pid: &u32) {
+    fn kill_target_process(&self, pid: &u32) -> anyhow::Result<()> {
         println!("kill_target_process() pid: {}", pid);
-        let mut command = Command::new("kill");
-        command.arg("-9").arg(pid.to_string());
-        let mut process = command.spawn().unwrap();
-        process.wait().unwrap();
+        Command::new("kill")
+            .arg("-9")
+            .arg(pid.to_string())
+            .spawn()?
+            .wait()?;
+        Ok(())
     }
 }

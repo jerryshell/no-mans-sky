@@ -32,13 +32,11 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
                     }
                     println!("target process pid: {}", pid);
                     // spawn clean_env thread
-                    let pid_clone = pid.clone();
-                    let task_clone = task.clone();
                     thread::spawn(move || {
-                        if pid_clone != PID_INIT_VALUE {
+                        if pid != PID_INIT_VALUE {
                             thread::sleep(Duration::from_secs(10));
                         }
-                        task_clone.clean_env();
+                        task.clean_env();
                     });
                 }
             }

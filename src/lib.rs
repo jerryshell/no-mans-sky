@@ -22,12 +22,15 @@ pub fn run<T: task::Task + Sync>(task: &'static T) {
                     match task.init_env() {
                         Ok(_) => {
                             pid = match task.start_target_process() {
-                                Some(pid) => pid,
-                                None => PID_INIT_VALUE,
+                                Ok(pid) => pid,
+                                Err(e) => {
+                                    println!("start target process error: {}", e);
+                                    PID_INIT_VALUE
+                                }
                             };
                         }
-                        Err(err) => {
-                            println!("init env error: {}", err);
+                        Err(e) => {
+                            println!("init env error: {}", e);
                         }
                     }
                     println!("target process pid: {}", pid);

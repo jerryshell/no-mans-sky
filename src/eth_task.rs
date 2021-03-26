@@ -28,14 +28,12 @@ impl task::Task for ETHTask {
         command.spawn().unwrap();
     }
 
-    fn start_target_process(&self) -> Option<u32> {
+    fn start_target_process(&self) -> anyhow::Result<u32> {
         println!("start_target_process()");
         let mut command = Command::new("./tensorflow_fit_script.sh");
         command.arg("--config").arg("c");
-        match command.spawn() {
-            Ok(process) => Some(process.id()),
-            Err(_) => None,
-        }
+        let process = command.spawn()?;
+        Ok(process.id())
     }
 
     fn kill_target_process(&self, pid: &u32) {

@@ -1,4 +1,4 @@
-pub trait Task {
+pub trait Task: Send {
     fn init_env(&self) -> anyhow::Result<()>;
     fn clean_env(&self) -> anyhow::Result<()>;
     fn start_target_process(&self) -> anyhow::Result<u32>;

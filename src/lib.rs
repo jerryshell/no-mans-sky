@@ -6,7 +6,7 @@ use std::{
         Arc, Mutex,
     },
     thread,
-    time::Duration,
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
 pub mod eth_task;
@@ -20,18 +20,28 @@ pub fn get_user_count() -> anyhow::Result<usize> {
     Ok(String::from_utf8_lossy(&w_output.stdout).lines().count())
 }
 
-pub fn run(task_arc: Arc<Mutex<dyn task::Task>>) {
+pub fn run(task_arc: Arc<Mutex<dyn task::Task>>, kill_at: Option<u64>) {
     let mut pid: u32 = PID_INIT_VALUE;
     let running_flag = Arc::new(AtomicBool::new(true));
 
+    // init SIGINT, SIGTERM handler
     let running_flag_clone = running_flag.clone();
-
     ctrlc::set_handler(move || {
         running_flag_clone.store(false, Ordering::SeqCst);
     })
     .unwrap();
 
     while running_flag.load(Ordering::SeqCst) {
+        if let Some(unix_timestamp_secs) = kill_at {
+            match SystemTime::now().duration_since(UNIX_EPOCH) {
+                Ok(current) => {
+                    if current.as_secs() >= unix_timestamp_secs {
+                        break;
+                    }
+                }
+                Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+            }
+        }
         match get_user_count() {
             Ok(user_count) => {
                 println!("{} user_count: {}", Utc::now(), user_count);

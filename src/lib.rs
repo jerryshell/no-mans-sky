@@ -1,7 +1,10 @@
 use chrono::Utc;
 use std::{
     process::Command,
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
     thread,
     time::Duration,
 };
@@ -19,7 +22,16 @@ pub fn get_user_count() -> anyhow::Result<usize> {
 
 pub fn run(task_arc: Arc<Mutex<dyn task::Task>>) {
     let mut pid: u32 = PID_INIT_VALUE;
-    loop {
+    let running_flag = Arc::new(AtomicBool::new(true));
+
+    let running_flag_clone = running_flag.clone();
+
+    ctrlc::set_handler(move || {
+        running_flag_clone.store(false, Ordering::SeqCst);
+    })
+    .unwrap();
+
+    while running_flag.load(Ordering::SeqCst) {
         match get_user_count() {
             Ok(user_count) => {
                 println!("{} user_count: {}", Utc::now(), user_count);
@@ -65,6 +77,9 @@ pub fn run(task_arc: Arc<Mutex<dyn task::Task>>) {
         }
         thread::sleep(Duration::from_secs(1));
     }
+
+    // SIGINT, SIGTERM
+    clean(task_arc.clone(), &mut pid);
 }
 
 fn clean(task_arc: Arc<Mutex<dyn task::Task>>, pid: &mut u32) {

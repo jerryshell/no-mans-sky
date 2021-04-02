@@ -9,8 +9,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0"
-chrono = "0.4"
+anyhow = "1.0.40"
+chrono = "0.4.19"
+ctrlc = { version = "3.1.8", features = ["termination"] }
 
 [profile.release]
 strip = "symbols"

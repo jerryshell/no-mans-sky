@@ -14,7 +14,7 @@ impl task::Task for ETHTask {
             .spawn()?
             .wait()?;
         File::create("c")?
-            .write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\nwatchdog=1\napi=10555\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e")?;
+            .write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\ndevices=0 1 2 3 4 5 6\ntemplimit=60\nwatchdog=1\napi=10555\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e")?;
         Ok(())
     }
 

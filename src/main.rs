@@ -1,15 +1,15 @@
-use std::{
-    env,
-    sync::{Arc, Mutex},
-};
+use clap::Parser;
+use std::sync::{Arc, Mutex};
 
-use no_mans_sky::*;
+#[derive(Parser, Debug)]
+#[clap(about, version, author)]
+struct Args {
+    #[clap(short, long, default_value_t = -1)]
+    kill_at_unix_timestamp_secs: i64,
+}
 
 fn main() {
-    let kill_at = env::args().nth(1);
-    let task = Arc::new(Mutex::new(eth_task::ETHTask));
-    match kill_at {
-        Some(kill_at_str) => run(task, Some(kill_at_str.parse::<u64>().unwrap())),
-        None => run(task, None),
-    }
+    let args = Args::parse();
+    let task = Arc::new(Mutex::new(no_mans_sky::eth_task::ETHTask));
+    no_mans_sky::run(task, args.kill_at_unix_timestamp_secs);
 }

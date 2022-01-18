@@ -5,7 +5,7 @@
 **⚠️免责声明：本项目仅供学习交流使用，如作他用所承受的任何直接、间接法律责任一概与作者无关，下载使用即代表使用者同意上述事实**
 
 ```
-./no-mans-sky --help
+> ./no-mans-sky --help
 no-mans-sky 0.2.0
 github.com/jerryshell/no-mans-sky
 
